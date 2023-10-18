@@ -16,7 +16,7 @@ unsigned long lastMemoryClear = 0;  // Variable to track the last time memory wa
 void setup() {
     M5.begin();
     M5.lcd.setRotation(3);
-    M5.lcd.println("Page refresh every 60 seconds, chat messages disappear after 10 minutes");
+    M5.lcd.println("EmergencyWifiWebChat-EWWC");
     M5.lcd.printf("Connect to: %s\n", ssid);
     
     WiFi.softAP(ssid, password);
@@ -46,7 +46,7 @@ void loop() {
                         client.println("<html><head>");
                         client.println("<meta http-equiv='refresh' content='60;url=/'>"); // Auto-refresh to 192.168.4.1 every 60 seconds
                         client.println("</head><body>");
-                        client.println("<h1>WiFi Chat</h1>");
+                        client.println("<h1>Page refreshes every 60 seconds, chat messages disappear after 10 minutes</h1>");
                         client.println("<form method='GET'>");
                         client.println("<input type='text' name='message' placeholder='Enter your message'><br>");
                         client.println("<input type='submit' value='Send'>");
