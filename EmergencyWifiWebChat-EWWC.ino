@@ -43,7 +43,7 @@ void loop() {
                         client.println("Content-type:text/html");
                         client.println();
                         client.println("<html><head>");
-                        client.println("<meta http-equiv='refresh' content='60;url=192.168.4.1'>"); // Auto-refresh to 192.168.4.1 every 60 seconds
+                        client.println("<meta http-equiv='refresh' content='60;url=/'>"); // Auto-refresh to 192.168.4.1 every 60 seconds
                         client.println("</head><body>");
                         client.println("<h1>WiFi Chat</h1>");
                         client.println("<form method='GET'>");
