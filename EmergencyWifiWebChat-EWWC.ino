@@ -11,11 +11,12 @@ WiFiServer server(80);
 const int maxMessages = 5;
 String chatMessages[maxMessages];
 int messageCount = 0;
+unsigned long lastMemoryClear = 0;  // Variable to track the last time memory was cleared
 
 void setup() {
     M5.begin();
     M5.lcd.setRotation(3);
-    M5.lcd.println("WiFi Chat AP");
+    M5.lcd.println("Page refresh every 60 seconds, chat messages disappear after 10 minutes");
     M5.lcd.printf("Connect to: %s\n", ssid);
     
     WiFi.softAP(ssid, password);
@@ -89,6 +90,13 @@ void loop() {
 
         client.stop();
     }
+
+    // Check if it's time to clear old messages and free up memory
+    unsigned long currentTime = millis();
+    if (currentTime - lastMemoryClear >= 600000) {  // Clear memory every 10 minutes
+        clearOldMessages();
+        lastMemoryClear = currentTime;
+    }
 }
 
 void addChatMessage(String message) {
@@ -102,4 +110,12 @@ void addChatMessage(String message) {
         }
         chatMessages[maxMessages - 1] = message;
     }
+}
+
+void clearOldMessages() {
+    // Clear all messages and reset the message count
+    for (int i = 0; i < maxMessages; i++) {
+        chatMessages[i] = "";
+    }
+    messageCount = 0;
 }
