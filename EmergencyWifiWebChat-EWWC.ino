@@ -13,7 +13,15 @@ String chatMessages[maxMessages];
 int messageCount = 0;
 unsigned long lastMemoryClear = 0;  // Variable to track the last time memory was cleared
 
+int ledBrightness = 0;  // Initialize LED brightness
+int fadeAmount = 5;    // Amount by which the LED brightness changes
+int minBrightness = 0; // Minimum brightness
+int maxBrightness = 255; // Maximum brightness
+
 void setup() {
+    // Initialize the LED as an output
+    pinMode(10, OUTPUT);
+
     // M5.begin(); // Comment out this line to disable display initialization
     // M5.lcd.setRotation(3); // Comment out this line to disable display rotation
     // M5.lcd.println("EmergencyWifiWebChat-EWWC"); // Comment out this line to disable display output
@@ -26,6 +34,15 @@ void setup() {
 }
 
 void loop() {
+    // Gradually change LED brightness to create a breathing effect
+    analogWrite(10, ledBrightness);
+
+    // Adjust brightness within the specified range
+    ledBrightness = ledBrightness + fadeAmount;
+    if (ledBrightness <= minBrightness || ledBrightness >= maxBrightness) {
+        fadeAmount = -1;  // Reverse the direction of brightness change
+    }
+
     WiFiClient client = server.available();
     
     if (client) {
