@@ -13,36 +13,19 @@ String chatMessages[maxMessages];
 int messageCount = 0;
 unsigned long lastMemoryClear = 0;  // Variable to track the last time memory was cleared
 
-int ledBrightness = 0;  // Initialize LED brightness
-int fadeAmount = 50;    // Amount by which the LED brightness changes
-int minBrightness = 0; // Minimum brightness
-int maxBrightness = 50; // Maximum brightness
-
 void setup() {
-    // Initialize the LED as an output
-    pinMode(10, OUTPUT);
-
-    // M5.begin(); // Comment out this line to disable display initialization
-    // M5.lcd.setRotation(3); // Comment out this line to disable display rotation
-    // M5.lcd.println("EmergencyWifiWebChat-EWWC"); // Comment out this line to disable display output
-    // M5.lcd.printf("Connect to: %s\n", ssid); // Comment out this line to disable display output
+    //M5.begin();
+    //M5.lcd.setRotation(3);
+    //M5.lcd.println("WiFi Chat AP");
+    //M5.lcd.printf("Connect to: %s\n", ssid);
     
     WiFi.softAP(ssid, password);
     IPAddress myIP = WiFi.softAPIP();
-    // M5.lcd.println(myIP); // Comment out this line to disable display output
+    M5.lcd.println(myIP);
     server.begin();
 }
 
 void loop() {
-    // Gradually change LED brightness to create a breathing effect
-    analogWrite(10, ledBrightness);
-
-    // Adjust brightness within the specified range
-    ledBrightness = ledBrightness + fadeAmount;
-    if (ledBrightness <= minBrightness || ledBrightness >= maxBrightness) {
-        fadeAmount = -fadeAmount;  // Reverse the direction of brightness change
-    }
-
     WiFiClient client = server.available();
     
     if (client) {
@@ -52,7 +35,7 @@ void loop() {
         while (client.connected()) {
             if (client.available()) {
                 char c = client.read();
-                // Serial.write(c); // You can keep Serial output for debugging, but it's not necessary for display
+                Serial.write(c);
 
                 if (c == '\n') {
                     if (currentLine.length() == 0) {
@@ -63,7 +46,7 @@ void loop() {
                         client.println("<html><head>");
                         client.println("<meta http-equiv='refresh' content='60;url=/'>"); // Auto-refresh to 192.168.4.1 every 60 seconds
                         client.println("</head><body>");
-                        client.println("<h1>Page refreshes every 60 seconds, chat messages disappear after 10 minutes</h1>");
+                        client.println("<h1>WiFi Chat</h1>");
                         client.println("<form method='GET'>");
                         client.println("<input type='text' name='message' placeholder='Enter your message'><br>");
                         client.println("<input type='submit' value='Send'>");
@@ -110,7 +93,7 @@ void loop() {
 
     // Check if it's time to clear old messages and free up memory
     unsigned long currentTime = millis();
-    if (currentTime - lastMemoryClear >= 600000) {  // Clear memory every 10 minutes
+    if (currentTime - lastMemoryClear >= 300000) {  // Clear memory every 5 minutes
         clearOldMessages();
         lastMemoryClear = currentTime;
     }
