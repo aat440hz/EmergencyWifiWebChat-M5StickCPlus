@@ -13,21 +13,28 @@ String chatMessages[maxMessages];
 int messageCount = 0;
 unsigned long lastMemoryClear = 0;  // Variable to track the last time memory was cleared
 
+bool ledOn = false;  // Variable to track the LED state
+
+// Define the GPIO pin number for the onboard LED (replace with the actual GPIO pin number)
+const int onboardLedPin = 10;
+
 void setup() {
     M5.begin();
-    //M5.lcd.setRotation(3);
-    //M5.lcd.println("WiFi Chat AP");
-    //M5.lcd.printf("Connect to: %s\n", ssid);
-    
+    M5.Lcd.setRotation(3);
+    M5.Lcd.println("WiFi Chat AP");
+    M5.Lcd.printf("Connect to: %s\n", ssid);
+
+    pinMode(onboardLedPin, OUTPUT);  // Set the LED pin as an output
+
     WiFi.softAP(ssid, password);
     IPAddress myIP = WiFi.softAPIP();
-    //M5.lcd.println(myIP);
+    M5.Lcd.println(myIP);
     server.begin();
 }
 
 void loop() {
     WiFiClient client = server.available();
-    
+
     if (client) {
         String currentLine = "";
         String chatMessage = "";  // To store user chat messages
@@ -39,12 +46,11 @@ void loop() {
 
                 if (c == '\n') {
                     if (currentLine.length() == 0) {
-                        // Serve the chat interface HTML
                         client.println("HTTP/1.1 200 OK");
                         client.println("Content-type:text/html");
                         client.println();
                         client.println("<html><head>");
-                        client.println("<meta http-equiv='refresh' content='60;url=/'>"); // Auto-refresh to 192.168.4.1 every 60 seconds
+                        client.println("<meta http-equiv='refresh' content='60;url=/'>");
                         client.println("</head><body>");
                         client.println("<h1>WiFi Chat</h1>");
                         client.println("<form method='GET'>");
@@ -52,11 +58,9 @@ void loop() {
                         client.println("<input type='submit' value='Send'>");
                         client.println("</form>");
 
-                        // Display chat messages
                         client.println("<h2>Chat Messages:</h2>");
                         client.println("<ul>");
-                        
-                        // Display the most recent messages (up to maxMessages) in descending order
+
                         for (int i = messageCount - 1; i >= max(0, messageCount - maxMessages); i--) {
                             client.print("<li>");
                             client.print(chatMessages[i]);
@@ -80,8 +84,19 @@ void loop() {
                     if (startPos != -1 && endPos != -1) {
                         chatMessage = currentLine.substring(startPos, endPos);
                         if (chatMessage != chatMessages[messageCount - 1]) {
-                            // Add the message only if it's different from the last one
                             addChatMessage(chatMessage);
+                        }
+
+                        if (chatMessage == "led_on") {
+                            digitalWrite(onboardLedPin, LOW);
+                            ledOn = true;
+                        } else if (chatMessage == "led_off") {
+                            digitalWrite(onboardLedPin, HIGH);
+                            ledOn = false;
+                        }
+
+                        if (chatMessage == "beep") {
+                            beepRapidly(3000);  // Beep rapidly for 3 seconds
                         }
                     }
                 }
@@ -91,9 +106,8 @@ void loop() {
         client.stop();
     }
 
-    // Check if it's time to clear old messages and free up memory
     unsigned long currentTime = millis();
-    if (currentTime - lastMemoryClear >= 300000) {  // Clear memory every 5 minutes
+    if (currentTime - lastMemoryClear >= 300000) {
         clearOldMessages();
         lastMemoryClear = currentTime;
     }
@@ -104,7 +118,6 @@ void addChatMessage(String message) {
         chatMessages[messageCount] = message;
         messageCount++;
     } else {
-        // If the message log is full, shift messages to make space for the new message
         for (int i = 0; i < maxMessages - 1; i++) {
             chatMessages[i] = chatMessages[i + 1];
         }
@@ -113,9 +126,18 @@ void addChatMessage(String message) {
 }
 
 void clearOldMessages() {
-    // Clear all messages and reset the message count
     for (int i = 0; i < maxMessages; i++) {
         chatMessages[i] = "";
     }
     messageCount = 0;
+}
+
+void beepRapidly(unsigned long duration) {
+    unsigned long startTime = millis();
+    while (millis() - startTime < duration) {
+        M5.Beep.tone(4000);  // Activate the internal buzzer with a 4000 Hz tone
+        delay(100); // Beep for 100 ms
+        M5.Beep.mute();  // Stop the buzzer
+        delay(100); // Pause for 100 ms
+    }
 }
