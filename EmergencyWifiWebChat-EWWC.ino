@@ -14,14 +14,14 @@ int messageCount = 0;
 unsigned long lastMemoryClear = 0;  // Variable to track the last time memory was cleared
 
 void setup() {
-    M5.begin();
-    M5.lcd.setRotation(3);
-    M5.lcd.println("EmergencyWifiWebChat-EWWC");
-    M5.lcd.printf("Connect to: %s\n", ssid);
+    // M5.begin(); // Comment out this line to disable display initialization
+    // M5.lcd.setRotation(3); // Comment out this line to disable display rotation
+    // M5.lcd.println("EmergencyWifiWebChat-EWWC"); // Comment out this line to disable display output
+    // M5.lcd.printf("Connect to: %s\n", ssid); // Comment out this line to disable display output
     
     WiFi.softAP(ssid, password);
     IPAddress myIP = WiFi.softAPIP();
-    M5.lcd.println(myIP);
+    // M5.lcd.println(myIP); // Comment out this line to disable display output
     server.begin();
 }
 
@@ -35,7 +35,7 @@ void loop() {
         while (client.connected()) {
             if (client.available()) {
                 char c = client.read();
-                Serial.write(c);
+                // Serial.write(c); // You can keep Serial output for debugging, but it's not necessary for display
 
                 if (c == '\n') {
                     if (currentLine.length() == 0) {
