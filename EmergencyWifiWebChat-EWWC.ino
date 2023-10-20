@@ -14,9 +14,9 @@ int messageCount = 0;
 unsigned long lastMemoryClear = 0;  // Variable to track the last time memory was cleared
 
 int ledBrightness = 0;  // Initialize LED brightness
-int fadeAmount = 5;    // Amount by which the LED brightness changes
+int fadeAmount = 50;    // Amount by which the LED brightness changes
 int minBrightness = 0; // Minimum brightness
-int maxBrightness = 255; // Maximum brightness
+int maxBrightness = 50; // Maximum brightness
 
 void setup() {
     // Initialize the LED as an output
@@ -40,7 +40,7 @@ void loop() {
     // Adjust brightness within the specified range
     ledBrightness = ledBrightness + fadeAmount;
     if (ledBrightness <= minBrightness || ledBrightness >= maxBrightness) {
-        fadeAmount = -1;  // Reverse the direction of brightness change
+        fadeAmount = -fadeAmount;  // Reverse the direction of brightness change
     }
 
     WiFiClient client = server.available();
