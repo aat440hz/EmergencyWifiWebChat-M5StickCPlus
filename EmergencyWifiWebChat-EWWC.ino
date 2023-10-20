@@ -14,14 +14,14 @@ int messageCount = 0;
 unsigned long lastMemoryClear = 0;  // Variable to track the last time memory was cleared
 
 void setup() {
-    //M5.begin();
+    M5.begin();
     //M5.lcd.setRotation(3);
     //M5.lcd.println("WiFi Chat AP");
     //M5.lcd.printf("Connect to: %s\n", ssid);
     
     WiFi.softAP(ssid, password);
     IPAddress myIP = WiFi.softAPIP();
-    M5.lcd.println(myIP);
+    //M5.lcd.println(myIP);
     server.begin();
 }
 
